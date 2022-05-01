@@ -4,6 +4,7 @@ import (
 	"debug/dwarf"
 	"fmt"
 	"reflect"
+	"runtime/debug"
 	"sort"
 	"strings"
 	"unsafe"
@@ -36,6 +37,12 @@ func (t *Troop) addType(typ reflect.Type) {
 		return
 	}
 	t.types[name] = typ
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("goof add type error", name, r, string(debug.Stack()))
+		}
+	}()
 
 	switch typ.Kind() {
 	case reflect.Ptr, reflect.Chan, reflect.Slice, reflect.Array:
